@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "959116189355",
+    "project_id": "davao-donation-app-1adf4",
+    "storage_bucket": "davao-donation-app-1adf4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:959116189355:android:0aa642107c27542126a1ee",
+        "android_client_info": {
+          "package_name": "com.example.donation_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "959116189355-q326ojtmdrih47tufq5mkjr8t02eq065.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUs33p2MiorxQd6YqYhzXG2iTpj3ALRjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "959116189355-q326ojtmdrih47tufq5mkjr8t02eq065.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
