@@ -29,7 +29,14 @@ class EventPhotoFetched extends EventState {
 
 class EventSuccess extends EventState {}
 
-class EventDeleteSuccess extends EventState {}
+class EventChangeStatusSuccess extends EventState {
+  final String? message;
+
+  const EventChangeStatusSuccess({this.message});
+
+  @override
+  List<Object> get props => [message!];
+}
 
 class EventListUnlistSuccess extends EventState {
   final bool forUnlisting;

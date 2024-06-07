@@ -1,10 +1,9 @@
-// ignore_for_file: depend_on_referenced_packages
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:donation_management/core/data/services/secured_storage_service.dart';
 import 'package:donation_management/core/domain/authentication_repository.dart';
+import 'package:donation_management/core/domain/user_repository.dart';
 import 'package:donation_management/feature/profile/data/models/user_dto.dart';
 import 'package:equatable/equatable.dart';
 
@@ -14,15 +13,17 @@ class AccountCubit extends Cubit<AccountState> {
   AccountCubit(
     this._authenticationRepository,
     this._securedStorageService,
+    this._userRepository,
   ) : super(AccountInitial());
 
   final AuthenticationRepositoryImpl? _authenticationRepository;
   final SecuredStorageService? _securedStorageService;
+  final UserRepositoryImpl? _userRepository;
 
   Future<void> loadUser() async {
     try {
       String? localData = await _securedStorageService!.readSecureData(
-        _securedStorageService.localUserKey,
+        _securedStorageService!.localUserKey,
       );
 
       UserDto user = UserDto.fromJson(jsonDecode(localData!));
@@ -37,10 +38,24 @@ class AccountCubit extends Cubit<AccountState> {
     emit(AccountLoading());
 
     try {
+      String? localData = await _securedStorageService!.readSecureData(
+        _securedStorageService!.localUserKey,
+      );
+
+      UserDto user = UserDto.fromJson(jsonDecode(localData!));
+
+      user.fcmToken = null;
+      user.updatedAt = DateTime.now();
+
+      await _userRepository!.updateUser(
+        user.userId!,
+        updateProfileData: user,
+      );
+
       await _authenticationRepository!.signOut();
 
       await _securedStorageService!.deleteSecureData(
-        _securedStorageService.localUserKey,
+        _securedStorageService!.localUserKey,
       );
 
       emit(const AccountSuccess(forSignOut: true));

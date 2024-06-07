@@ -1,4 +1,5 @@
 import 'package:donation_management/core/data/services/firebase_service.dart';
+import 'package:donation_management/core/data/services/local_notification_service.dart';
 
 class ApplicationService {
   ApplicationService._();
@@ -11,5 +12,8 @@ class ApplicationService {
   static Future<void> initServices() async {
     /// Initialize firebase service
     await FirebaseService.init();
+
+    /// Initialize local notification service
+    await LocalNotificationService.initialize();
   }
 }

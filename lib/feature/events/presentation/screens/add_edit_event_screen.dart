@@ -2,14 +2,15 @@ import 'package:donation_management/core/data/services/image_picker_service.dart
 import 'package:donation_management/core/presentation/utils/app_style.dart';
 import 'package:donation_management/core/presentation/utils/dialog_utils.dart';
 import 'package:donation_management/core/presentation/utils/snackbar_utils.dart';
+import 'package:donation_management/core/presentation/validators/event_validator.dart';
 import 'package:donation_management/core/presentation/widgets/custom_app_bar.dart';
 import 'package:donation_management/core/presentation/widgets/custom_button.dart';
 import 'package:donation_management/core/presentation/widgets/custom_date_picker_textfield.dart';
-import 'package:donation_management/core/presentation/widgets/custom_dropdown.dart';
 import 'package:donation_management/core/presentation/widgets/custom_image_picker_container.dart';
 import 'package:donation_management/core/presentation/widgets/custom_loader.dart';
 import 'package:donation_management/core/presentation/widgets/custom_textfield.dart';
-import 'package:donation_management/feature/events/data/enums/event_type.dart';
+import 'package:donation_management/core/presentation/widgets/custom_time_picker_textfield.dart';
+import 'package:donation_management/feature/events/data/enums/event_status.dart';
 import 'package:donation_management/feature/events/data/models/event_dto.dart';
 import 'package:donation_management/feature/events/presentation/blocs/event_cubit/event_cubit.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,9 @@ class AddEditEventScreen extends StatefulWidget {
 
 class _AddEditEventScreenState extends State<AddEditEventScreen> {
   ImagePickerService? _imagePickerService;
+
   FormGroup? _eventForm;
+
   XFile? _image;
   bool? _isFromMedia;
   bool? _hasMediaError;
@@ -44,12 +47,48 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
           _hasMediaError = true;
         });
       }
+
       _eventForm!.markAllAsTouched();
     } else {
+      DateTime sD = _eventForm!.control('eventStartDate').value as DateTime;
+      DateTime eD = _eventForm!.control('eventEndDate').value as DateTime;
+
+      TimeOfDay sT = _eventForm!.control('eventStartTime').value as TimeOfDay;
+      TimeOfDay eT = _eventForm!.control('eventEndTime').value as TimeOfDay;
+
+      DateTime startDate = DateTime(
+        sD.year,
+        sD.month,
+        sD.day,
+        sT.hour,
+        sT.minute,
+      );
+
+      DateTime endDate = DateTime(
+        sD.year,
+        sD.month,
+        sD.day,
+        eT.hour,
+        eT.minute,
+      );
+
       if (_image == null && !widget.args.isEdit) {
         setState(() {
           _hasMediaError = true;
         });
+      } else if (endDate.isBefore(startDate)) {
+        _eventForm!.control('eventEndTime').setErrors(
+          {'endDateAfter': true},
+        );
+      } else if (eD.isBefore(sD) ||
+          (!eD.isAtSameMomentAs(sD) && eD.isBefore(sD))) {
+        _eventForm!.control('eventEndDate').setErrors(
+          {'endDateAfter': true},
+        );
+      } else if (startDate.isAtSameMomentAs(endDate)) {
+        _eventForm!.control('eventEndTime').setErrors(
+          {'sameDuration': true},
+        );
       } else {
         DialogUtils.showConfirmationDialog(
           context,
@@ -58,6 +97,7 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
               'Are you sure you want to ${(widget.args.isEdit) ? 'update' : 'add'} this event?',
           onPrimaryButtonPressed: () async {
             Navigator.pop(context);
+
             if (widget.args.isEdit) {
               await ctx
                   .read<EventCubit>()
@@ -74,6 +114,7 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
   void _setImage(XFile? imagePath) {
     setState(() {
       _image = imagePath;
+
       if (_image != null) {
         _isFromMedia = true;
         _hasMediaError = false;
@@ -82,6 +123,7 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
         _image = null;
       }
     });
+
     Navigator.pop(context);
   }
 
@@ -90,11 +132,15 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
       context,
       header: 'Select Media',
       onCameraPressed: () async {
-        XFile? _imagePath = await _imagePickerService!.pickImage(Media.camera);
+        XFile? _imagePath = await _imagePickerService!.pickImage(
+          media: Media.camera,
+        );
         _setImage(_imagePath);
       },
       onGalleryPressed: () async {
-        XFile? _imagePath = await _imagePickerService!.pickImage(Media.gallery);
+        XFile? _imagePath = await _imagePickerService!.pickImage(
+          media: Media.gallery,
+        );
         _setImage(_imagePath);
       },
     );
@@ -102,29 +148,53 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
 
   void _popLoader(String message, {bool closeScreen = false}) {
     SnackbarUtils.removeCurrentSnackbar(context: context);
+
     CustomLoader.of(context).managePop(true);
     CustomLoader.of(context).hide();
+
     SnackbarUtils.showSnackbar(
       context: context,
       title: message,
     );
+
     if (closeScreen) {
       Navigator.pop(context);
     }
   }
 
+  bool _validIfFilled() {
+    if (widget.args.isEdit && widget.args.event != null) {
+      if (widget.args.event!.eventStatus == EventStatus.onGoing.code()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   @override
   void initState() {
     _eventForm = FormGroup({
-      'eventType': FormControl<int>(validators: [Validators.required]),
       'eventTitle': FormControl<String>(validators: [Validators.required]),
       'eventDescription': FormControl<String>(validators: [
         Validators.required,
       ]),
-      'eventDate': FormControl<DateTime>(validators: [
+      'eventStartDate': FormControl<DateTime>(validators: [
+        Validators.required,
+        EventValidator.priorEventDate,
+      ]),
+      'eventStartTime': FormControl<TimeOfDay>(validators: [
+        Validators.required,
+      ]),
+      'eventEndDate': FormControl<DateTime>(validators: [
+        Validators.required,
+        EventValidator.priorEventDate,
+      ]),
+      'eventEndTime': FormControl<TimeOfDay>(validators: [
         Validators.required,
       ]),
     });
+
     _imagePickerService = ImagePickerService();
     _isFromMedia = false;
     _hasMediaError = false;
@@ -182,29 +252,54 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 25.h),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomDropdown<int>(
-                      'eventType',
-                      items: [
-                        DropdownMenuItem(
-                          value: EventType.donationDrive.code(),
-                          child: Text(EventType.donationDrive.text()),
-                        ),
-                        DropdownMenuItem(
-                          value: EventType.volunteer.code(),
-                          child: Text(EventType.volunteer.text()),
-                        ),
-                      ],
-                      label: 'Event Type',
+                    CustomDatePickerTextField(
+                      filled: _validIfFilled(),
+                      formControlName: 'eventStartDate',
+                      label: 'Event Start Date',
+                      firstDate: DateTime.now().subtract(
+                        const Duration(days: 0),
+                      ),
                       validationMessages: {
-                        'required': (error) => 'Event type is required',
+                        'required': (error) => 'Event start date is required',
+                        'priorEventDate': (error) =>
+                            'Event start date must be 2 days before the current date',
+                      },
+                    ),
+                    CustomTimePickerTextField(
+                      filled: _validIfFilled(),
+                      formControlName: 'eventStartTime',
+                      label: 'Event Start Time',
+                      validationMessages: {
+                        'required': (error) => 'Event start time is required',
                       },
                     ),
                     CustomDatePickerTextField(
-                      formControlName: 'eventDate',
-                      label: 'Event Date',
+                      filled: _validIfFilled(),
+                      formControlName: 'eventEndDate',
+                      label: 'Event End Date',
+                      firstDate: DateTime.now().subtract(
+                        const Duration(days: 0),
+                      ),
                       validationMessages: {
-                        'required': (error) => 'Event date is required',
+                        'required': (error) => 'Event end date is required',
+                        'endDateAfter': (error) =>
+                            'Event end date must be after or same of the start date',
+                        'priorEventDate': (error) =>
+                            'Event end date must be 2 days before the current date',
+                      },
+                    ),
+                    CustomTimePickerTextField(
+                      filled: _validIfFilled(),
+                      formControlName: 'eventEndTime',
+                      label: 'Event End Time',
+                      validationMessages: {
+                        'required': (error) => 'Event end time is required',
+                        'endDateAfter': (error) =>
+                            'Event end time must be after of the start time',
+                        'sameDuration': (error) =>
+                            'Event end time must not be same as the start time',
                       },
                     ),
                     CustomTextField(

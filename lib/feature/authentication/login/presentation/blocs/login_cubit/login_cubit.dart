@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:donation_management/core/data/services/firebase_messaging_service.dart';
 import 'package:donation_management/core/data/services/secured_storage_service.dart';
 import 'package:donation_management/core/domain/authentication_repository.dart';
 import 'package:donation_management/feature/profile/data/models/user_dto.dart';
@@ -16,11 +17,13 @@ class LoginCubit extends Cubit<LoginState> {
     this._authenticationRepository,
     this._userRepository,
     this._securedStorageService,
+    this._firebaseMessagingService,
   ) : super(LoginInitial());
 
   final AuthenticationRepositoryImpl? _authenticationRepository;
   final UserRepositoryImpl? _userRepository;
   final SecuredStorageService? _securedStorageService;
+  final FirebaseMessagingService _firebaseMessagingService;
 
   Future<void> loginAccount({
     required String emailAddress,
@@ -34,9 +37,18 @@ class LoginCubit extends Cubit<LoginState> {
         password: password,
       );
 
+      String? fcmToken = await _firebaseMessagingService.getFCMToken();
       UserDto user = await _userRepository!.getUser(userCredential!.user!.uid);
 
       if (user.isApproved!) {
+        user.fcmToken = fcmToken;
+        user.updatedAt = DateTime.now();
+
+        await _userRepository.updateUser(
+          user.userId!,
+          updateProfileData: user,
+        );
+
         await _securedStorageService!.writeSecureData(
           _securedStorageService.localUserKey,
           jsonEncode(user.toJsonWithoutDates()),

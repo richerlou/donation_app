@@ -158,6 +158,7 @@ class DialogUtils {
     String? galleryText,
     VoidCallback? onCameraPressed,
     VoidCallback? onGalleryPressed,
+    double bottomSheetHeight = 380.0,
   }) async {
     await showModalBottomSheet(
       context: context,
@@ -168,41 +169,46 @@ class DialogUtils {
         ),
       ),
       builder: (BuildContext context) {
-        return Container(
-          height: 320.0,
-          padding: const EdgeInsets.symmetric(vertical: 25.0, horizontal: 25.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                header ?? '',
-                style: const TextStyle(
-                  fontSize: 20.0,
-                  fontFamily: FontFamily.dMSans,
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF191919),
+        return SingleChildScrollView(
+          child: Container(
+            height: bottomSheetHeight,
+            padding: const EdgeInsets.symmetric(
+              vertical: 25.0,
+              horizontal: 25.0,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  header ?? '',
+                  style: const TextStyle(
+                    fontSize: 20.0,
+                    fontFamily: FontFamily.dMSans,
+                    fontStyle: FontStyle.normal,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF191919),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 26.0),
-              ListView.separated(
-                shrinkWrap: true,
-                primary: false,
-                itemCount: options.length,
-                itemBuilder: (context, index) {
-                  return options[index];
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return const Divider(
-                    indent: 12.0,
-                    endIndent: 12.0,
-                    color: Color(0xFFE5E5E5),
-                    thickness: 1.0,
-                  );
-                },
-              ),
-            ],
+                const SizedBox(height: 26),
+                ListView.separated(
+                  shrinkWrap: true,
+                  primary: false,
+                  itemCount: options.length,
+                  itemBuilder: (context, index) {
+                    return options[index];
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return const Divider(
+                      indent: 12.0,
+                      endIndent: 12.0,
+                      color: Color(0xFFE5E5E5),
+                      thickness: 1.0,
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -214,7 +220,7 @@ class DialogUtils {
     String? title,
     required Widget content,
     required String primaryButtonTitle,
-    required VoidCallback onPrimaryButtonPressed,
+    VoidCallback? onPrimaryButtonPressed,
     String? secondaryButtonTitle,
     VoidCallback? onSecondaryButtonPressed,
   }) async {
@@ -260,7 +266,7 @@ class DialogUtils {
                   )
                 : const SizedBox.shrink(),
             TextButton(
-              onPressed: onPrimaryButtonPressed,
+              onPressed: onPrimaryButtonPressed ?? () => Navigator.pop(context),
               child: Text(
                 primaryButtonTitle,
                 style: const TextStyle(

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:donation_management/core/data/services/firebase_messaging_service.dart';
 import 'package:donation_management/core/data/services/secured_storage_service.dart';
 import 'package:donation_management/core/domain/authentication_repository.dart';
 import 'package:donation_management/core/domain/user_repository.dart';
@@ -18,11 +19,13 @@ class RegistrationCubit extends Cubit<RegistrationState> {
     this._authenticationRepository,
     this._userRepository,
     this._securedStorageService,
+    this._firebaseMessagingService,
   ) : super(RegistrationInitial());
 
   final AuthenticationRepositoryImpl? _authenticationRepository;
   final UserRepositoryImpl? _userRepository;
   final SecuredStorageService? _securedStorageService;
+  final FirebaseMessagingService _firebaseMessagingService;
 
   Future<void> createAccount(UserRole userRole, FormGroup form) async {
     emit(RegistrationLoading());
@@ -40,6 +43,8 @@ class RegistrationCubit extends Cubit<RegistrationState> {
           password: form.control('password').value,
         );
 
+        String? fcmToken = await _firebaseMessagingService.getFCMToken();
+
         if (userRole == UserRole.organization) {
           await _registerOrganization(
             userCredential: cred!,
@@ -49,6 +54,7 @@ class RegistrationCubit extends Cubit<RegistrationState> {
           await _authenticationRepository.signOut();
         } else {
           user = await _registerIndividual(
+            fcmToken: fcmToken,
             userCredential: cred!,
             form: form,
           );
@@ -101,6 +107,7 @@ class RegistrationCubit extends Cubit<RegistrationState> {
   }
 
   Future<UserDto> _registerIndividual({
+    String? fcmToken,
     required UserCredential userCredential,
     required FormGroup form,
   }) async {
@@ -110,9 +117,11 @@ class RegistrationCubit extends Cubit<RegistrationState> {
       firstName: form.control('firstName').value,
       middleName: form.control('middleName').value,
       lastName: form.control('lastName').value,
+      barangay: form.control('barangay').value,
       emailAddress: form.control('emailAddress').value,
       mobileNumber: form.control('mobileNumber').value,
       profileDescription: form.control('bio').value,
+      fcmToken: fcmToken,
       isApproved: true,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
@@ -139,6 +148,22 @@ class RegistrationCubit extends Cubit<RegistrationState> {
       userId: userCredential.user!.uid,
       userRole: UserRole.organization.code(),
       organizationName: form.control('organizationName').value,
+      organizationLocation: form.control('location').value,
+      organizationType: form.control('organizationType').value,
+      organizationWebsite: form.control('website').value,
+      organizationRepName1: form.control('organizationRepName1').value,
+      organizationRepLocation1: form.control('organizationRepLocation1').value,
+      organizationRepMobileNumber1:
+          form.control('organizationRepMobileNumber1').value,
+      organizationRepName2: _dataOrNull(
+        form.control('organizationRepName2').value,
+      ),
+      organizationRepLocation2: _dataOrNull(
+        form.control('organizationRepLocation2').value,
+      ),
+      organizationRepMobileNumber2: _dataOrNull(
+        form.control('organizationRepMobileNumber2').value,
+      ),
       emailAddress: form.control('emailAddress').value,
       mobileNumber: form.control('mobileNumber').value,
       profileDescription: form.control('bio').value,
@@ -151,5 +176,13 @@ class RegistrationCubit extends Cubit<RegistrationState> {
       userCredential.user!.uid,
       registrationData: data,
     );
+  }
+
+  String? _dataOrNull(String? value) {
+    if (value != null && value != '') {
+      return value;
+    } else {
+      return 'null';
+    }
   }
 }

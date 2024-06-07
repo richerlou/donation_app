@@ -1,5 +1,4 @@
-// c:/Users/admin/Documents/donation_management/lib/feature/home/presentation/screens/home_screen.dart
-
+import 'package:donation_management/core/data/services/firebase_messaging_service.dart';
 import 'package:donation_management/core/presentation/utils/app_style.dart';
 import 'package:donation_management/feature/events/presentation/widgets/events_section.dart';
 import 'package:donation_management/feature/events/presentation/widgets/my_listing_section.dart';
@@ -68,8 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _tabItems = const [
       BottomNavigationBarItem(
-        icon: Icon(Icons.post_add),
-        label: 'My Postings',
+        icon: Icon(Icons.home),
+        label: 'Home',
       ),
       BottomNavigationBarItem(
         icon: Icon(Icons.message),
@@ -102,6 +101,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    FirebaseMessagingService.onBackgroundHandler();
+
+    FirebaseMessagingService.onForegroundHandler();
+
     _currentIndex = 0;
 
     if (widget.args.userRole!.code() == UserRole.individual.code()) {

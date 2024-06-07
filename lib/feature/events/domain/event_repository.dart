@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:donation_management/core/data/services/firebase_service.dart';
+import 'package:donation_management/feature/events/data/enums/event_status.dart';
 import 'package:donation_management/feature/events/data/enums/event_type.dart';
 import 'package:donation_management/feature/events/data/models/event_dto.dart';
 import 'package:donation_management/feature/events/data/models/joined_event_dto.dart';
@@ -10,13 +11,15 @@ abstract class EventRepository {
   Stream<QuerySnapshot>? getPostedEventByType({
     required String postedBy,
     required EventType eventType,
+    required EventStatus eventStatus,
   });
 
   Stream<DocumentSnapshot>? getEventStream(String eventId);
 
   Future<EventDto>? getEventFuture(String eventId);
 
-  Stream<QuerySnapshot>? getUserJoinedEvents(String userId);
+  Stream<QuerySnapshot>? getUserJoinedEvents(
+      String userId, EventStatus eventStatus);
 
   Future<String> uploadEventPhoto({
     required String eventId,
@@ -34,6 +37,9 @@ abstract class EventRepository {
     String documentId, {
     required EventDto event,
   });
+
+  /// Update joined event to `firestore`.
+  Future<void> updateJoinedEvent(JoinedEventDto joinedEvent);
 
   /// Delete event to `firestore`.
   Future<void> deleteEvent(String documentId);
@@ -75,10 +81,12 @@ class EventRepositoryImpl implements EventRepository {
   Stream<QuerySnapshot>? getPostedEventByType({
     required String postedBy,
     required EventType eventType,
+    required EventStatus eventStatus,
   }) =>
       _firebaseService.eventsRef
           .where('postedBy', isEqualTo: postedBy)
           .where('eventType', isEqualTo: eventType.code())
+          .where('eventStatus', isEqualTo: eventStatus.code())
           .orderBy('createdAt', descending: true)
           .snapshots();
 
@@ -87,9 +95,11 @@ class EventRepositoryImpl implements EventRepository {
       _firebaseService.eventsRef.doc(eventId).snapshots();
 
   @override
-  Stream<QuerySnapshot>? getUserJoinedEvents(String userId) =>
+  Stream<QuerySnapshot>? getUserJoinedEvents(
+          String userId, EventStatus eventStatus) =>
       _firebaseService.joinedEventsRef
           .where('joinedBy', isEqualTo: userId)
+          .where('joinedEventStatus', isEqualTo: eventStatus.code())
           .orderBy('createdAt', descending: true)
           .snapshots();
 
@@ -139,9 +149,12 @@ class EventRepositoryImpl implements EventRepository {
       await _firebaseService.joinedEventsRef.doc(id).delete();
 
   @override
-  Stream<QuerySnapshot>? getEvents() => _firebaseService.eventsRef
-      .orderBy('createdAt', descending: true)
-      .snapshots();
+  Stream<QuerySnapshot>? getEvents() =>
+      _firebaseService.eventsRef.where('eventStatus', whereIn: [
+        EventStatus.notYetStarted.code(),
+        EventStatus.onGoing.code(),
+        EventStatus.rescheduled.code()
+      ]).snapshots();
 
   @override
   Future<void> listEvent(
@@ -174,7 +187,7 @@ class EventRepositoryImpl implements EventRepository {
 
   @override
   Future<List<JoinedEventDto>> getJoinedEvents(String eventId) async {
-    List<JoinedEventDto> tmpJoinedEvents = <JoinedEventDto>[];
+    List<JoinedEventDto> _tmpJoinedEvents = <JoinedEventDto>[];
 
     QuerySnapshot query = await _firebaseService.joinedEventsRef
         .where('joinedEventId', isEqualTo: eventId)
@@ -182,13 +195,13 @@ class EventRepositoryImpl implements EventRepository {
 
     if (query.docs.isNotEmpty) {
       for (QueryDocumentSnapshot element in query.docs) {
-        tmpJoinedEvents.add(
+        _tmpJoinedEvents.add(
           JoinedEventDto.fromJson(element.data() as Map<String, dynamic>),
         );
       }
     }
 
-    return tmpJoinedEvents;
+    return _tmpJoinedEvents;
   }
 
   @override
@@ -197,4 +210,10 @@ class EventRepositoryImpl implements EventRepository {
           .where('joinedEventId', isEqualTo: eventId)
           .orderBy('createdAt', descending: true)
           .snapshots();
+
+  @override
+  Future<void> updateJoinedEvent(JoinedEventDto joinedEvent) async =>
+      await _firebaseService.joinedEventsRef
+          .doc(joinedEvent.id)
+          .update(joinedEvent.toJson());
 }

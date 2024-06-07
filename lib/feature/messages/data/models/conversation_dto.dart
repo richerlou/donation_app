@@ -6,12 +6,22 @@ part 'conversation_dto.g.dart';
 
 @JsonSerializable()
 class ConversationDto {
-  @JsonKey(name: 'conversationId')
+  @JsonKey(name: 'conversationId', includeIfNull: false)
   final String? conversationId;
 
-  @JsonKey(name: 'userIds')
+  @JsonKey(name: 'isOrganization', includeIfNull: false)
+  bool? isOrganization;
+
+  @JsonKey(name: 'isIndividual', includeIfNull: false)
+  bool? isIndividual;
+
+  @JsonKey(name: 'userIds', includeIfNull: false)
   @FieldValueConverter()
   final List<String>? userIds;
+
+  @JsonKey(name: 'conversationKeys', includeIfNull: false)
+  @FieldValueConverter()
+  final List<String>? conversationKeys;
 
   @JsonKey(name: 'createdAt', includeIfNull: false)
   @TimestampConverter()
@@ -23,6 +33,9 @@ class ConversationDto {
 
   ConversationDto({
     this.conversationId,
+    this.conversationKeys,
+    this.isOrganization,
+    this.isIndividual,
     this.userIds,
     this.createdAt,
     this.updatedAt,

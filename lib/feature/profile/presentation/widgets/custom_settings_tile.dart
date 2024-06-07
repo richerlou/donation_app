@@ -5,14 +5,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomSettingsTile extends StatelessWidget {
   const CustomSettingsTile({
-    super.key,
+    Key? key,
     this.title,
     this.titleColor = AppStyle.kColorBlack,
     this.suffixIconData,
     this.suffixIconColor = AppStyle.kColorGrey,
     this.showDivider = true,
     this.settingsOnTapped,
-  });
+  }) : super(key: key);
 
   final String? title;
   final Color titleColor;

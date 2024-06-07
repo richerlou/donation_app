@@ -12,6 +12,7 @@ JoinedEventDto _$JoinedEventDtoFromJson(Map<String, dynamic> json) =>
       joinedEventId: json['joinedEventId'] as String?,
       eventCreatedBy: json['eventCreatedBy'] as String?,
       joinedBy: json['joinedBy'] as String?,
+      joinedEventStatus: json['joinedEventStatus'] as num?,
       createdAt:
           const TimestampConverter().fromJson(json['createdAt'] as Timestamp?),
       updatedAt:
@@ -21,9 +22,6 @@ JoinedEventDto _$JoinedEventDtoFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$JoinedEventDtoToJson(JoinedEventDto instance) {
   final val = <String, dynamic>{
     'id': instance.id,
-    'joinedEventId': instance.joinedEventId,
-    'eventCreatedBy': instance.eventCreatedBy,
-    'joinedBy': instance.joinedBy,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -32,6 +30,10 @@ Map<String, dynamic> _$JoinedEventDtoToJson(JoinedEventDto instance) {
     }
   }
 
+  writeNotNull('joinedEventId', instance.joinedEventId);
+  writeNotNull('eventCreatedBy', instance.eventCreatedBy);
+  writeNotNull('joinedBy', instance.joinedBy);
+  writeNotNull('joinedEventStatus', instance.joinedEventStatus);
   writeNotNull(
       'createdAt', const TimestampConverter().toJson(instance.createdAt));
   writeNotNull(

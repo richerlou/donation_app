@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:donation_management/core/presentation/utils/app_style.dart';
 import 'package:donation_management/core/presentation/widgets/custom_empty_placeholder.dart';
 import 'package:donation_management/core/presentation/widgets/custom_progress_indicator.dart';
+import 'package:donation_management/feature/events/data/enums/event_status.dart';
 import 'package:donation_management/feature/events/data/enums/event_type.dart';
 import 'package:donation_management/feature/events/data/models/event_dto.dart';
 import 'package:donation_management/feature/events/presentation/blocs/event_cubit/event_cubit.dart';
@@ -12,22 +13,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EventTab extends StatelessWidget {
   const EventTab({
-    super.key,
+    Key? key,
     required this.postedBy,
     required this.eventType,
+    required this.eventStatus,
     this.isOrganization = false,
-  });
+  }) : super(key: key);
 
   final String postedBy;
   final EventType eventType;
+  final EventStatus eventStatus;
   final bool isOrganization;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: context
-          .read<EventCubit>()
-          .getPostedEvent(postedBy: postedBy, eventType: eventType),
+      stream: context.read<EventCubit>().getPostedEvent(
+            postedBy: postedBy,
+            eventType: eventType,
+            eventStatus: eventStatus,
+          ),
       builder: (context, snapshot) {
         if (snapshot.hasData && !snapshot.hasError) {
           if (snapshot.data!.docs.isNotEmpty) {
@@ -72,28 +77,32 @@ class EventTab extends StatelessWidget {
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 15.0),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(15.0),
-            decoration: BoxDecoration(
-              color: AppStyle.kColorWhite,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: EventItemTile(
-              event: _eventItems[index],
-              onItemPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EventDetailsScreen(
-                      args: EventDetailsScreenArgs(
-                        event: _eventItems[index],
-                        isOrganization: isOrganization,
+          child: Material(
+            elevation: 8.0,
+            borderRadius: BorderRadius.circular(8.0),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(15.0),
+              decoration: BoxDecoration(
+                color: AppStyle.kColorWhite,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: EventItemTile(
+                event: _eventItems[index],
+                onItemPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EventDetailsScreen(
+                        args: EventDetailsScreenArgs(
+                          event: _eventItems[index],
+                          isOrganization: isOrganization,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         );

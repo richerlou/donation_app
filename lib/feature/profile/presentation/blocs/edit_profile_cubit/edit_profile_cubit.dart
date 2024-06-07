@@ -32,18 +32,34 @@ class EditProfileCubit extends Cubit<EditProfileState>
         'firstName': user.firstName,
         'middleName': user.middleName,
         'lastName': user.lastName,
+        'barangay': user.barangay,
         'organizationName': user.organizationName,
+        'location': user.organizationLocation,
+        'organizationType': user.organizationType,
+        'website': user.organizationWebsite,
         'bio': user.profileDescription,
         'emailAddress': user.emailAddress,
         'mobileNumber': user.mobileNumber,
+        'organizationRepName1': user.organizationRepName1,
+        'organizationRepLocation1': user.organizationRepLocation1,
+        'organizationRepMobileNumber1': user.organizationRepMobileNumber1,
+        'organizationRepName2': (user.organizationRepName2 != 'null')
+            ? user.organizationRepName2
+            : null,
+        'organizationRepLocation2': (user.organizationRepLocation2 != 'null')
+            ? user.organizationRepLocation2
+            : null,
+        'organizationRepMobileNumber2':
+            (user.organizationRepMobileNumber2 != 'null')
+                ? user.organizationRepMobileNumber2
+                : null,
       },
     );
 
     editProfileForm.control('emailAddress').markAsDisabled();
 
     emit(EditProfileSuccess(
-      profilePhotoName: (user.getUserRole == UserRole.individual ||
-              user.getUserRole == UserRole.admin)
+      profilePhotoName: (user.getUserRole == UserRole.individual)
           ? user.firstName
           : user.organizationName,
       profilePhoto: (user.profileImage != null) ? user.profileImage! : null,
@@ -135,6 +151,9 @@ class EditProfileCubit extends Cubit<EditProfileState>
       lastName: textFieldChecker(
         form.control('lastName').value,
       ),
+      barangay: textFieldChecker(
+        form.control('barangay').value,
+      ),
       profileDescription: form.control('bio').value,
       emailAddress: textFieldChecker(
         form.control('emailAddress').value,
@@ -159,6 +178,15 @@ class EditProfileCubit extends Cubit<EditProfileState>
       organizationName: textFieldChecker(
         form.control('organizationName').value,
       ),
+      organizationLocation: textFieldChecker(
+        form.control('location').value,
+      ),
+      organizationType: textFieldChecker(
+        form.control('organizationType').value,
+      ),
+      organizationWebsite: textFieldChecker(
+        form.control('website').value,
+      ),
       profileDescription: form.control('bio').value,
       emailAddress: textFieldChecker(
         form.control('emailAddress').value,
@@ -166,7 +194,33 @@ class EditProfileCubit extends Cubit<EditProfileState>
       mobileNumber: textFieldChecker(
         form.control('mobileNumber').value,
       ),
+      organizationRepName1: textFieldChecker(
+        form.control('organizationRepName1').value,
+      ),
+      organizationRepLocation1: textFieldChecker(
+        form.control('organizationRepLocation1').value,
+      ),
+      organizationRepMobileNumber1: textFieldChecker(
+        form.control('organizationRepMobileNumber1').value,
+      ),
+      organizationRepName2: _dataOrNull(
+        form.control('organizationRepName2').value,
+      ),
+      organizationRepLocation2: _dataOrNull(
+        form.control('organizationRepLocation2').value,
+      ),
+      organizationRepMobileNumber2: _dataOrNull(
+        form.control('organizationRepMobileNumber2').value,
+      ),
       updatedAt: DateTime.now(),
     );
+  }
+
+  String? _dataOrNull(String? value) {
+    if (value != null && value != '') {
+      return value;
+    } else {
+      return 'null';
+    }
   }
 }

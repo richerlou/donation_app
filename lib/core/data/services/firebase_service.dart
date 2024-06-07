@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:donation_management/core/data/constants/firebase_option_config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,7 +15,7 @@ class FirebaseService {
   factory FirebaseService() => _instance;
 
   static Future<void> init() async {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(options: FirebaseOptionsConfig.android);
   }
 
   // --- Firestore --- //
@@ -25,6 +26,7 @@ class FirebaseService {
   CollectionReference get joinedEventsRef => _joinedEvents;
   CollectionReference get conversationsRef => _conversations;
   CollectionReference get messagesRef => _messages;
+  CollectionReference get donationOffersRef => _donationOffers;
 
   /// Initialize referencesS
   final CollectionReference _users =
@@ -37,6 +39,8 @@ class FirebaseService {
       FirebaseFirestore.instance.collection('conversations');
   final CollectionReference _messages =
       FirebaseFirestore.instance.collection('messages');
+  final CollectionReference _donationOffers =
+      FirebaseFirestore.instance.collection('donationOffers');
 
   // --- Firebase Authentication --- //
 

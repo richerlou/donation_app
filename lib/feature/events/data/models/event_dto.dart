@@ -5,27 +5,37 @@ part 'event_dto.g.dart';
 
 @JsonSerializable()
 class EventDto {
-  @JsonKey(name: 'eventId')
+  @JsonKey(name: 'eventId', includeIfNull: false)
   final String? eventId;
 
-  @JsonKey(name: 'postedBy')
+  @JsonKey(name: 'postedBy', includeIfNull: false)
   final String? postedBy;
 
-  @JsonKey(name: 'eventType')
+  @JsonKey(name: 'eventType', includeIfNull: false)
   final num? eventType;
 
-  @JsonKey(name: 'eventTitle')
+  @JsonKey(name: 'eventTitle', includeIfNull: false)
   final String? eventTitle;
 
-  @JsonKey(name: 'eventDescription')
+  @JsonKey(name: 'eventDescription', includeIfNull: false)
   final String? eventDescription;
 
-  @JsonKey(name: 'eventPhotoUrl')
+  @JsonKey(name: 'eventPhotoUrl', includeIfNull: false)
   final String? eventPhotoUrl;
 
-  @JsonKey(name: 'eventDate')
+  @JsonKey(name: 'eventStatus', includeIfNull: false)
+  final num? eventStatus;
+
+  @JsonKey(name: 'eventStartDateTime', includeIfNull: false)
   @TimestampConverter()
-  final DateTime? eventDate;
+  final DateTime? eventStartDateTime;
+
+  @JsonKey(name: 'eventEndDateTime', includeIfNull: false)
+  @TimestampConverter()
+  final DateTime? eventEndDateTime;
+
+  @JsonKey(name: 'isDonationClosed', includeIfNull: false)
+  final bool? isDonationClosed;
 
   @JsonKey(name: 'createdAt', includeIfNull: false)
   @TimestampConverter()
@@ -42,7 +52,10 @@ class EventDto {
     this.eventTitle,
     this.eventDescription,
     this.eventPhotoUrl,
-    this.eventDate,
+    this.eventStatus,
+    this.eventStartDateTime,
+    this.eventEndDateTime,
+    this.isDonationClosed,
     this.createdAt,
     this.updatedAt,
   });

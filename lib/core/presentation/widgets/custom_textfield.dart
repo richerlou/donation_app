@@ -1,6 +1,7 @@
 import 'package:donation_management/core/presentation/utils/app_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -29,6 +30,7 @@ class CustomTextField extends StatelessWidget {
     this.errorMaxLines = 2,
     this.readOnly = false,
     this.valueAccessor,
+    this.subtleText,
   });
 
   final String? formControlName;
@@ -53,7 +55,8 @@ class CustomTextField extends StatelessWidget {
   final Widget? prefixIcon;
   final int errorMaxLines;
   final bool readOnly;
-  final DateTimeValueAccessor? valueAccessor;
+  final dynamic valueAccessor;
+  final String? subtleText;
 
   @override
   Widget build(BuildContext context) {
@@ -112,6 +115,11 @@ class CustomTextField extends StatelessWidget {
           suffixIcon: suffixIcon,
           prefix: prefixWidget,
           errorMaxLines: errorMaxLines,
+          counterText: subtleText ?? '',
+          counterStyle: AppStyle.kStyleRegular.copyWith(
+            color: AppStyle.kColorGrey2,
+            fontSize: 14.sp,
+          ),
         ),
         validationMessages: validationMessages,
         inputFormatters: inputFormatters,

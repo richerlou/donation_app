@@ -11,7 +11,7 @@ class ImagePickerService {
 
   final ImagePicker _picker = ImagePicker();
 
-  Future<XFile?> pickImage(Media media) async {
+  Future<XFile?> pickImage({Media media = Media.camera}) async {
     XFile? image;
 
     if (media == Media.camera) {
@@ -29,6 +29,7 @@ class ImagePickerService {
         return null;
       }
     }
+
     return null;
   }
 }

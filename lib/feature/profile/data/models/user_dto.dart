@@ -21,8 +21,38 @@ class UserDto {
   @JsonKey(name: 'lastName', includeIfNull: false)
   final String? lastName;
 
+  @JsonKey(name: 'barangay', includeIfNull: false)
+  final String? barangay;
+
   @JsonKey(name: 'organizationName', includeIfNull: false)
   final String? organizationName;
+
+  @JsonKey(name: 'organizationLocation', includeIfNull: false)
+  final String? organizationLocation;
+
+  @JsonKey(name: 'organizationType', includeIfNull: false)
+  final String? organizationType;
+
+  @JsonKey(name: 'organizationWebsite', includeIfNull: false)
+  final String? organizationWebsite;
+
+  @JsonKey(name: 'organizationRepName1', includeIfNull: false)
+  final String? organizationRepName1;
+
+  @JsonKey(name: 'organizationRepLocation1', includeIfNull: false)
+  final String? organizationRepLocation1;
+
+  @JsonKey(name: 'organizationRepMobileNumber1', includeIfNull: false)
+  final String? organizationRepMobileNumber1;
+
+  @JsonKey(name: 'organizationRepName2', includeIfNull: false)
+  final String? organizationRepName2;
+
+  @JsonKey(name: 'organizationRepLocation2', includeIfNull: false)
+  final String? organizationRepLocation2;
+
+  @JsonKey(name: 'organizationRepMobileNumber2', includeIfNull: false)
+  final String? organizationRepMobileNumber2;
 
   @JsonKey(name: 'emailAddress')
   final String? emailAddress;
@@ -36,6 +66,9 @@ class UserDto {
   @JsonKey(name: 'profileDescription')
   final String? profileDescription;
 
+  @JsonKey(name: 'fcmToken')
+  String? fcmToken;
+
   @JsonKey(name: 'isApproved')
   final bool? isApproved;
 
@@ -45,7 +78,7 @@ class UserDto {
 
   @JsonKey(name: 'updatedAt', includeIfNull: false)
   @TimestampConverter()
-  final DateTime? updatedAt;
+  DateTime? updatedAt;
 
   UserDto({
     this.userId,
@@ -53,11 +86,22 @@ class UserDto {
     this.firstName,
     this.middleName,
     this.lastName,
+    this.barangay,
     this.organizationName,
+    this.organizationLocation,
+    this.organizationType,
+    this.organizationWebsite,
+    this.organizationRepName1,
+    this.organizationRepLocation1,
+    this.organizationRepMobileNumber1,
+    this.organizationRepName2,
+    this.organizationRepLocation2,
+    this.organizationRepMobileNumber2,
     this.emailAddress,
     this.mobileNumber,
     this.profileImage,
     this.profileDescription,
+    this.fcmToken,
     this.isApproved,
     this.createdAt,
     this.updatedAt,
@@ -75,16 +119,27 @@ class UserDto {
       'firstName': firstName,
       'middleName': middleName,
       'lastName': lastName,
+      'barangay': barangay,
       'organizationName': organizationName,
+      'organizationLocation': organizationLocation,
+      'organizationType': organizationType,
+      'organizationWebsite': organizationWebsite,
+      'organizationRepName1': organizationRepName1,
+      'organizationRepLocation1': organizationRepLocation1,
+      'organizationRepMobileNumber1': organizationRepMobileNumber1,
+      'organizationRepName2': organizationRepName2,
+      'organizationRepLocation2': organizationRepLocation2,
+      'organizationRepMobileNumber2': organizationRepMobileNumber2,
       'emailAddress': emailAddress,
       'mobileNumber': mobileNumber,
       'profileImage': profileImage,
       'profileDescription': profileDescription,
+      'fcmToken': fcmToken,
       'isApproved': isApproved,
     };
   }
 
-   UserDto copyWith({bool? isApproved}) {
+  UserDto copyWith({bool? isApproved}) {
     return UserDto(
       userId: userId,
       userRole: userRole,
@@ -96,7 +151,8 @@ class UserDto {
       mobileNumber: mobileNumber,
       profileImage: profileImage,
       profileDescription: profileDescription,
-      isApproved: isApproved ?? this.isApproved, // Use the updated value or keep the current value
+      isApproved: isApproved ??
+          this.isApproved, // Use the updated value or keep the current value
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

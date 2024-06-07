@@ -7,13 +7,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ParticipantItemTile extends StatelessWidget {
   const ParticipantItemTile({
-    super.key,
+    Key? key,
     required this.user,
     required this.onPressed,
-  });
+    this.actionOnPressed,
+    this.icon,
+  }) : super(key: key);
 
   final UserDto user;
   final VoidCallback onPressed;
+
+  final VoidCallback? actionOnPressed;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -23,21 +28,33 @@ class ParticipantItemTile extends StatelessWidget {
         padding: const EdgeInsets.all(10.0),
         child: Row(
           children: [
-            CustomAvatar(
-              heroTag: StringUtils.generateId(),
-              name: user.firstName,
-              size: 60.0,
-              fontSize: 15.sp,
-              borderWidth: 3.w,
-              networkAsset: user.profileImage,
-            ),
-            SizedBox(width: 10.w),
-            Text(
-              '${user.firstName} ${user.lastName}',
-              style: AppStyle.kStyleBold.copyWith(
-                fontSize: 17.sp,
+            Expanded(
+              child: Row(
+                children: [
+                  CustomAvatar(
+                    heroTag: StringUtils.generateId(),
+                    name: user.firstName,
+                    size: 60.0,
+                    fontSize: 15.sp,
+                    borderWidth: 3.w,
+                    networkAsset: user.profileImage,
+                  ),
+                  SizedBox(width: 10.w),
+                  Text(
+                    '${user.firstName} ${user.lastName}',
+                    style: AppStyle.kStyleBold.copyWith(
+                      fontSize: 17.sp,
+                    ),
+                  ),
+                ],
               ),
             ),
+            (icon != null)
+                ? IconButton(
+                    onPressed: actionOnPressed,
+                    icon: Icon(icon, color: AppStyle.kPrimaryColor),
+                  )
+                : const SizedBox.shrink(),
           ],
         ),
       ),

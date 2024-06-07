@@ -9,6 +9,11 @@ part of 'conversation_dto.dart';
 ConversationDto _$ConversationDtoFromJson(Map<String, dynamic> json) =>
     ConversationDto(
       conversationId: json['conversationId'] as String?,
+      conversationKeys: (json['conversationKeys'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      isOrganization: json['isOrganization'] as bool?,
+      isIndividual: json['isIndividual'] as bool?,
       userIds:
           (json['userIds'] as List<dynamic>?)?.map((e) => e as String).toList(),
       createdAt:
@@ -18,10 +23,7 @@ ConversationDto _$ConversationDtoFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$ConversationDtoToJson(ConversationDto instance) {
-  final val = <String, dynamic>{
-    'conversationId': instance.conversationId,
-    'userIds': instance.userIds,
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -29,6 +31,11 @@ Map<String, dynamic> _$ConversationDtoToJson(ConversationDto instance) {
     }
   }
 
+  writeNotNull('conversationId', instance.conversationId);
+  writeNotNull('isOrganization', instance.isOrganization);
+  writeNotNull('isIndividual', instance.isIndividual);
+  writeNotNull('userIds', instance.userIds);
+  writeNotNull('conversationKeys', instance.conversationKeys);
   writeNotNull(
       'createdAt', const TimestampConverter().toJson(instance.createdAt));
   writeNotNull(

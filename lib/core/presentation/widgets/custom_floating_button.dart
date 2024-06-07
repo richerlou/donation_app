@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 class CustomFloatingButton extends StatelessWidget {
   const CustomFloatingButton({
-    super.key,
+    Key? key,
     required this.icon,
     required this.onPressed,
     this.iconSize = 28.0,
     this.buttonColor,
-  });
+  }) : super(key: key);
 
   final IconData icon;
   final double iconSize;

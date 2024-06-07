@@ -13,8 +13,12 @@ EventDto _$EventDtoFromJson(Map<String, dynamic> json) => EventDto(
       eventTitle: json['eventTitle'] as String?,
       eventDescription: json['eventDescription'] as String?,
       eventPhotoUrl: json['eventPhotoUrl'] as String?,
-      eventDate:
-          const TimestampConverter().fromJson(json['eventDate'] as Timestamp?),
+      eventStatus: json['eventStatus'] as num?,
+      eventStartDateTime: const TimestampConverter()
+          .fromJson(json['eventStartDateTime'] as Timestamp?),
+      eventEndDateTime: const TimestampConverter()
+          .fromJson(json['eventEndDateTime'] as Timestamp?),
+      isDonationClosed: json['isDonationClosed'] as bool?,
       createdAt:
           const TimestampConverter().fromJson(json['createdAt'] as Timestamp?),
       updatedAt:
@@ -22,15 +26,7 @@ EventDto _$EventDtoFromJson(Map<String, dynamic> json) => EventDto(
     );
 
 Map<String, dynamic> _$EventDtoToJson(EventDto instance) {
-  final val = <String, dynamic>{
-    'eventId': instance.eventId,
-    'postedBy': instance.postedBy,
-    'eventType': instance.eventType,
-    'eventTitle': instance.eventTitle,
-    'eventDescription': instance.eventDescription,
-    'eventPhotoUrl': instance.eventPhotoUrl,
-    'eventDate': const TimestampConverter().toJson(instance.eventDate),
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -38,6 +34,18 @@ Map<String, dynamic> _$EventDtoToJson(EventDto instance) {
     }
   }
 
+  writeNotNull('eventId', instance.eventId);
+  writeNotNull('postedBy', instance.postedBy);
+  writeNotNull('eventType', instance.eventType);
+  writeNotNull('eventTitle', instance.eventTitle);
+  writeNotNull('eventDescription', instance.eventDescription);
+  writeNotNull('eventPhotoUrl', instance.eventPhotoUrl);
+  writeNotNull('eventStatus', instance.eventStatus);
+  writeNotNull('eventStartDateTime',
+      const TimestampConverter().toJson(instance.eventStartDateTime));
+  writeNotNull('eventEndDateTime',
+      const TimestampConverter().toJson(instance.eventEndDateTime));
+  writeNotNull('isDonationClosed', instance.isDonationClosed);
   writeNotNull(
       'createdAt', const TimestampConverter().toJson(instance.createdAt));
   writeNotNull(

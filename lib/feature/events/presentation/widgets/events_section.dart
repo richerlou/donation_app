@@ -13,9 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EventsSection extends StatelessWidget {
   const EventsSection({
-    super.key,
+    Key? key,
     required this.user,
-  });
+  }) : super(key: key);
 
   final UserDto user;
 
@@ -66,6 +66,8 @@ class EventsSection extends StatelessWidget {
         EventDto.fromJson(element.data() as Map<String, dynamic>),
       );
     }
+
+    _eventItems.sort((b, a) => a.createdAt!.compareTo(b.createdAt!));
 
     return ListView.builder(
       padding: const EdgeInsets.all(20.0),

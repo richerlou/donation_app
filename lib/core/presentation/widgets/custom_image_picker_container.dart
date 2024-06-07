@@ -10,7 +10,7 @@ import 'package:image_picker/image_picker.dart';
 
 class CustomImagePickerContainer extends StatelessWidget {
   const CustomImagePickerContainer({
-    super.key,
+    Key? key,
     this.fromMedia = false,
     this.hasMediaError = false,
     this.mediaAsset,
@@ -18,7 +18,7 @@ class CustomImagePickerContainer extends StatelessWidget {
     this.subtext,
     this.onPressed,
     this.errorText,
-  });
+  }) : super(key: key);
 
   final bool fromMedia;
   final bool hasMediaError;

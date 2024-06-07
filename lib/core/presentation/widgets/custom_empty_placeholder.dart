@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 
 class CustomEmptyPlaceholder extends StatelessWidget {
   const CustomEmptyPlaceholder({
-    super.key,
+    Key? key,
     this.iconData,
     required this.title,
     this.buttonTitle,
     this.buttonOnPressed,
     this.buttonWidth,
-  });
+  }) : super(key: key);
 
   final IconData? iconData;
   final String title;

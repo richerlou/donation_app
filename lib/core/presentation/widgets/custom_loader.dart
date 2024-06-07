@@ -30,7 +30,7 @@ class CustomLoader {
 }
 
 class _LoaderWidget extends StatelessWidget {
-  const _LoaderWidget();
+  const _LoaderWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

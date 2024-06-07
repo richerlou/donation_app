@@ -10,10 +10,10 @@ import 'package:flutter/material.dart';
 
 class MessageReceiverItem extends StatelessWidget {
   const MessageReceiverItem({
-    super.key,
+    Key? key,
     required this.user,
     required this.message,
-  });
+  }) : super(key: key);
 
   final UserDto user;
   final MessageDto message;
@@ -79,6 +79,7 @@ class MessageReceiverItem extends StatelessWidget {
                       alignment: Alignment.bottomRight,
                       child: Text(
                         StringUtils.getFormattedDate(
+                          dateFormat: 'MMMM dd, yyyy - hh:mm a',
                           dateTime: message.createdAt,
                         ),
                         style: AppStyle.kStyleRegular.copyWith(

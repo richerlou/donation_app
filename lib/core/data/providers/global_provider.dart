@@ -1,3 +1,4 @@
+import 'package:donation_management/core/data/services/firebase_messaging_service.dart';
 import 'package:donation_management/core/data/services/firebase_service.dart';
 import 'package:donation_management/core/data/services/secured_storage_service.dart';
 import 'package:donation_management/core/domain/authentication_repository.dart';
@@ -6,7 +7,9 @@ import 'package:donation_management/core/presentation/blocs/application_cubit/ap
 import 'package:donation_management/feature/admin/presentation/blocs/organization_cubit/organization_cubit.dart';
 import 'package:donation_management/feature/authentication/login/presentation/blocs/login_cubit/login_cubit.dart';
 import 'package:donation_management/feature/authentication/registration/presentation/blocs/registration_cubit/registration_cubit.dart';
+import 'package:donation_management/feature/events/domain/donation_repository.dart';
 import 'package:donation_management/feature/events/domain/event_repository.dart';
+import 'package:donation_management/feature/events/presentation/blocs/donation_cubit/donation_cubit.dart';
 import 'package:donation_management/feature/events/presentation/blocs/event_cubit/event_cubit.dart';
 import 'package:donation_management/feature/messages/domain/repositories/messages_repository.dart';
 import 'package:donation_management/feature/messages/presentation/blocs/message_cubit/message_cubit.dart';
@@ -24,6 +27,8 @@ class GlobalProvider {
   factory GlobalProvider() => _instance;
 
   static final FirebaseService _firebaseService = FirebaseService();
+  static final FirebaseMessagingService _firebaseMessagingService =
+      FirebaseMessagingService();
   static final SecuredStorageService securedStorageService =
       SecuredStorageService();
 
@@ -35,6 +40,8 @@ class GlobalProvider {
       EventRepositoryImpl(_firebaseService);
   static final MessageRepositoryImpl messageRepository =
       MessageRepositoryImpl(_firebaseService);
+  static final DonationRepositoryImpl donationRepository =
+      DonationRepositoryImpl(_firebaseService);
 
   /// Put your global blocs here
   static List<BlocProvider> providers = [
@@ -42,12 +49,15 @@ class GlobalProvider {
       create: (context) => ApplicationCubit(
         _firebaseService,
         securedStorageService,
+        userRepository,
+        _firebaseMessagingService,
       )..checkIfUserLoggedIn(),
     ),
     BlocProvider<AccountCubit>(
       create: (context) => AccountCubit(
         authenticationRepository,
         securedStorageService,
+        userRepository,
       ),
     ),
     BlocProvider<LoginCubit>(
@@ -55,6 +65,7 @@ class GlobalProvider {
         authenticationRepository,
         userRepository,
         securedStorageService,
+        _firebaseMessagingService,
       ),
     ),
     BlocProvider<RegistrationCubit>(
@@ -62,6 +73,7 @@ class GlobalProvider {
         authenticationRepository,
         userRepository,
         securedStorageService,
+        _firebaseMessagingService,
       ),
     ),
     BlocProvider<ProfileCubit>(
@@ -79,6 +91,7 @@ class GlobalProvider {
     BlocProvider<EventCubit>(
       create: (context) => EventCubit(
         eventRepository,
+        userRepository,
       ),
     ),
     BlocProvider<MessageCubit>(
@@ -90,8 +103,8 @@ class GlobalProvider {
     BlocProvider<PasswordCubit>(
       create: (context) => PasswordCubit(authenticationRepository),
     ),
-    BlocProvider<OrganizationCubit>(
-      create: (context) => OrganizationCubit(userRepository),
+    BlocProvider<DonationCubit>(
+      create: (context) => DonationCubit(donationRepository, userRepository),
     ),
   ];
 }

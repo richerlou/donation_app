@@ -16,10 +16,10 @@ class ProfileSection extends StatefulWidget {
   const ProfileSection({super.key});
 
   @override
-  ProfileSectionState createState() => ProfileSectionState();
+  _ProfileSectionState createState() => _ProfileSectionState();
 }
 
-class ProfileSectionState extends State<ProfileSection> with AccountMixin {
+class _ProfileSectionState extends State<ProfileSection> with AccountMixin {
   @override
   void initState() {
     context.read<AccountCubit>().loadUser();
@@ -192,6 +192,8 @@ class ProfileSectionState extends State<ProfileSection> with AccountMixin {
                     title: 'Confirmation',
                     content: 'Are you sure you want to sign out?',
                     onPrimaryButtonPressed: () async {
+                      Navigator.pop(context);
+
                       await context.read<AccountCubit>().signOut();
                     },
                   );

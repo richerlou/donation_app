@@ -9,17 +9,15 @@ mixin AccountMixin {
 
     if (state is AccountState) {
       if (state is AccountSuccess) {
-        if (state.user != null) {
-          if (state.user!.getUserRole == UserRole.organization) {
-            name = state.user!.organizationName ?? '...';
-          } else {
-            name = state.user!.firstName ?? '...';
-          }
+        if (state.user!.getUserRole == UserRole.organization) {
+          name = state.user!.organizationName!;
+        } else {
+          name = state.user!.firstName!;
         }
       }
     } else if (state is EditProfileState) {
       if (state is EditProfileSuccess) {
-        name = state.profilePhotoName ?? '...';
+        name = state.profilePhotoName!;
       }
     }
 
@@ -31,14 +29,14 @@ mixin AccountMixin {
       if (state is AccountSuccess) {
         UserDto? user = state.user;
         if (user?.profileImage != null) {
-          return user?.profileImage;
+          return user!.profileImage!;
         }
       }
     } else if (state is EditProfileState) {
       if (state is EditProfileSuccess) {
         String? profileImage = state.profilePhoto;
         if (profileImage != null) {
-          return profileImage;
+          return state.profilePhoto!;
         }
       }
     }

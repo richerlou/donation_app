@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:donation_management/core/data/enums/user_role.dart';
 import 'package:donation_management/core/data/services/firebase_service.dart';
 import 'package:donation_management/feature/messages/data/models/conversation_dto.dart';
 import 'package:donation_management/feature/messages/data/models/message_dto.dart';
@@ -15,15 +16,21 @@ abstract class MessageRepository {
     required MessageDto messageData,
   });
 
-  Future<bool> checkConversation(String receiverUserId);
+  Future<bool> checkConversation(String conversationKey);
 
-  Future<ConversationDto> getConversation(String receiverUserId);
+  Future<ConversationDto> getConversation(String conversationKey);
 
   /// Sets conversation to `firestore`.
   Future<void> createConversation({
     required String conversationId,
     required ConversationDto conversationData,
   });
+
+  /// Update conversation to `firestore`.
+  Future<void> updateConversation(ConversationDto conversationData);
+
+  /// Delete conversation to `firestore`.
+  Future<void> deleteConversation(String conversationId);
 }
 
 class MessageRepositoryImpl implements MessageRepository {
@@ -32,11 +39,22 @@ class MessageRepositoryImpl implements MessageRepository {
   final FirebaseService _firebaseService;
 
   @override
-  Stream<QuerySnapshot>? getConversationsByUser(String userId) =>
-      _firebaseService.conversationsRef
-          .where('userIds', arrayContains: userId)
-          .orderBy('updatedAt', descending: true)
-          .snapshots();
+  Stream<QuerySnapshot>? getConversationsByUser(
+    String userId, {
+    UserRole? userRole,
+  }) {
+    String? field = 'isIndividual';
+
+    if (userRole == UserRole.organization) {
+      field = 'isOrganization';
+    }
+
+    return _firebaseService.conversationsRef
+        .where('userIds', arrayContains: userId)
+        .where(field, isEqualTo: false)
+        .orderBy('updatedAt', descending: true)
+        .snapshots();
+  }
 
   @override
   Stream<QuerySnapshot>? getMessagesStream(String conversationId) =>
@@ -59,9 +77,9 @@ class MessageRepositoryImpl implements MessageRepository {
           .set(messageData.toJson());
 
   @override
-  Future<bool> checkConversation(String receiverUserId) async {
+  Future<bool> checkConversation(String conversationKey) async {
     QuerySnapshot query = await _firebaseService.conversationsRef
-        .where('userIds', arrayContains: receiverUserId)
+        .where('conversationKeys', arrayContains: conversationKey)
         .orderBy('updatedAt', descending: true)
         .get();
 
@@ -69,9 +87,9 @@ class MessageRepositoryImpl implements MessageRepository {
   }
 
   @override
-  Future<ConversationDto> getConversation(String receiverUserId) async {
+  Future<ConversationDto> getConversation(String conversationKey) async {
     QuerySnapshot query = await _firebaseService.conversationsRef
-        .where('userIds', arrayContains: receiverUserId)
+        .where('conversationKeys', arrayContains: conversationKey)
         .orderBy('updatedAt', descending: true)
         .get();
 
@@ -88,4 +106,14 @@ class MessageRepositoryImpl implements MessageRepository {
       await _firebaseService.conversationsRef
           .doc(conversationId)
           .set(conversationData.toJson());
+
+  @override
+  Future<void> updateConversation(ConversationDto conversationData) async =>
+      await _firebaseService.conversationsRef
+          .doc(conversationData.conversationId)
+          .update(conversationData.toJson());
+
+  @override
+  Future<void> deleteConversation(String conversationId) async =>
+      await _firebaseService.conversationsRef.doc(conversationId).delete();
 }

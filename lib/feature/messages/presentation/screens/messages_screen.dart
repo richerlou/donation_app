@@ -15,9 +15,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({
-    super.key,
+    Key? key,
     required this.args,
-  });
+  }) : super(key: key);
 
   final MessagesScreenArgs args;
 
@@ -76,13 +76,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 builder: (context, form, child) {
                   return IconButton(
                     icon: const Icon(Icons.send),
-                    onPressed: _messageForm!.valid
+                    onPressed: !_messageForm!.invalid
                         ? () async {
                             await context.read<MessageCubit>().sendMessage(
-                                  conversationId:
-                                      widget.args.conversation.conversationId,
+                                  conversation: widget.args.conversation,
                                   messageForm: _messageForm!,
                                   senderId: widget.args.senderUser.userId,
+                                  receiverId: widget.args.receiverUser.userId,
                                 );
                           }
                         : null,
@@ -97,31 +97,29 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   Widget _buildMessageList(List<QueryDocumentSnapshot> messageSnapshot) {
-    List<MessageDto> messages = <MessageDto>[];
+    List<MessageDto> _messages = <MessageDto>[];
 
     for (QueryDocumentSnapshot element in messageSnapshot) {
-      messages.add(
+      _messages.add(
         MessageDto.fromJson(element.data() as Map<String, dynamic>),
       );
     }
 
-    return Padding(
+    return ListView.builder(
+      reverse: true,
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-      child: ListView.builder(
-        reverse: true,
-        itemCount: messages.length,
-        itemBuilder: (context, index) {
-          return (messages[index].senderId == widget.args.senderUser.userId)
-              ? MessageSenderItem(
-                  user: widget.args.senderUser,
-                  message: messages[index],
-                )
-              : MessageReceiverItem(
-                  user: widget.args.receiverUser,
-                  message: messages[index],
-                );
-        },
-      ),
+      itemCount: _messages.length,
+      itemBuilder: (context, index) {
+        return (_messages[index].senderId == widget.args.senderUser.userId)
+            ? MessageSenderItem(
+                user: widget.args.senderUser,
+                message: _messages[index],
+              )
+            : MessageReceiverItem(
+                user: widget.args.receiverUser,
+                message: _messages[index],
+              );
+      },
     );
   }
 }

@@ -8,17 +8,15 @@ import 'package:donation_management/core/presentation/widgets/custom_floating_bu
 import 'package:donation_management/core/presentation/widgets/custom_loader.dart';
 import 'package:donation_management/core/presentation/widgets/custom_network_image.dart';
 import 'package:donation_management/core/presentation/widgets/custom_progress_indicator.dart';
-import 'package:donation_management/feature/events/data/enums/event_type.dart';
+import 'package:donation_management/feature/events/data/mixins/event_details_mixin.dart';
 import 'package:donation_management/feature/events/data/models/event_dto.dart';
-import 'package:donation_management/feature/events/data/models/joined_event_dto.dart';
 import 'package:donation_management/feature/events/presentation/blocs/event_cubit/event_cubit.dart';
-import 'package:donation_management/feature/events/presentation/screens/add_edit_event_screen.dart';
-import 'package:donation_management/feature/events/presentation/screens/view_participants_screen.dart';
 import 'package:donation_management/feature/messages/data/models/conversation_dto.dart';
 import 'package:donation_management/feature/messages/presentation/blocs/message_cubit/message_cubit.dart';
 import 'package:donation_management/feature/messages/presentation/screens/messages_screen.dart';
 import 'package:donation_management/feature/profile/data/models/user_dto.dart';
 import 'package:donation_management/feature/profile/presentation/blocs/profile_cubit/profile_cubit.dart';
+import 'package:donation_management/feature/profile/presentation/screens/view_profile_screen.dart';
 import 'package:donation_management/feature/profile/presentation/widgets/custom_profile_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,143 +34,46 @@ class EventDetailsScreen extends StatefulWidget {
   State<EventDetailsScreen> createState() => _EventDetailsScreenState();
 }
 
-class _EventDetailsScreenState extends State<EventDetailsScreen> {
+class _EventDetailsScreenState extends State<EventDetailsScreen>
+    with EventDetailsMixin {
   bool preventRebuild = false;
 
-  List<Widget> _settingsOptions(BuildContext context, EventDto event) {
-    List<Widget> options = [
-      ListTile(
-        onTap: () {
-          Navigator.pop(context);
+  void _popLoader(
+    BuildContext context, {
+    ConversationDto? conversation,
+    UserDto? receiverUser,
+    String? message,
+    bool navigate = false,
+    bool closeScreen = false,
+  }) {
+    SnackbarUtils.removeCurrentSnackbar(context: context);
 
-          Navigator.pushNamed(
-            context,
-            AppRouter.viewParticipantsScreen,
-            arguments: ViewParticipantsScreenArgs(event: event),
-          );
-        },
-        leading: const Icon(Icons.groups),
-        title: Text(
-          'View participants',
-          style: AppStyle.kStyleRegular.copyWith(
-            fontSize: 16.0,
-            color: AppStyle.kColorBlack,
-          ),
-        ),
-      ),
-      ListTile(
-        onTap: () {
-          Navigator.pop(context);
+    CustomLoader.of(context).managePop(true);
+    CustomLoader.of(context).hide();
 
-          Navigator.pushNamed(
-            context,
-            AppRouter.addEditEventScreen,
-            arguments: AddEditEventScreenArgs(
-              isEdit: true,
-              event: event,
-            ),
-          );
-        },
-        leading: const Icon(Icons.edit),
-        title: Text(
-          'Edit event',
-          style: AppStyle.kStyleRegular.copyWith(
-            fontSize: 16.0,
-            color: AppStyle.kColorBlack,
-          ),
-        ),
-      ),
-      ListTile(
-        onTap: () {
-          Navigator.pop(context);
-
-          DialogUtils.showConfirmationDialog(
-            context,
-            title: 'Confirmation',
-            content: 'Are you sure you want to delete this event?',
-            onPrimaryButtonPressed: () async {
-              Navigator.pop(context);
-
-              await context
-                  .read<EventCubit>()
-                  .deleteEvent(event.eventId!, event.eventPhotoUrl!);
-            },
-          );
-        },
-        leading: const Icon(
-          Icons.delete,
-          color: AppStyle.kColorRed,
-        ),
-        title: Text(
-          'Delete event',
-          style: AppStyle.kStyleRegular.copyWith(
-            fontSize: 16.0,
-            color: AppStyle.kColorRed,
-          ),
-        ),
-      ),
-    ];
-
-    if (!widget.args.isOrganization) {
-      options = [
-        FutureBuilder<JoinedEventDto?>(
-          future: context.read<EventCubit>().checkIfUserJoinedToEvent(
-              eventId: event.eventId!, userId: widget.args.senderUser!.userId!),
-          builder: (context, snapshot) {
-            if (!snapshot.hasError &&
-                snapshot.connectionState == ConnectionState.done) {
-              bool isListed = snapshot.hasData;
-
-              return ListTile(
-                onTap: () {
-                  Navigator.pop(context);
-
-                  if (isListed) {
-                    context.read<EventCubit>().unlistEvent(
-                        eventId: event.eventId!,
-                        userId: widget.args.senderUser!.userId!);
-                  } else {
-                    context.read<EventCubit>().listEvent(
-                        eventId: event.eventId!,
-                        eventCreatedBy: event.postedBy!,
-                        userId: widget.args.senderUser!.userId!);
-                  }
-                },
-                leading: const Icon(Icons.event, color: AppStyle.kPrimaryColor),
-                title: Text(
-                  isListed ? 'Unlist event' : 'List event',
-                  style: AppStyle.kStyleRegular.copyWith(
-                    fontSize: 16.sp,
-                    color: AppStyle.kPrimaryColor,
-                  ),
-                ),
-              );
-            }
-
-            return const CustomProgressIndicator(size: 20.0);
-          },
-        ),
-        ListTile(
-          onTap: () {
-            Navigator.pop(context);
-
-            context.read<MessageCubit>().createOrCheckConversation(
-                receiverUserId: event.postedBy!,
-                senderUserId: widget.args.senderUser!.userId!);
-          },
-          leading: const Icon(Icons.message),
-          title: Text(
-            'Message organization',
-            style: AppStyle.kStyleRegular.copyWith(
-              fontSize: 16.sp,
-              color: AppStyle.kColorBlack,
+    if (navigate) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MessagesScreen(
+            args: MessagesScreenArgs(
+              conversation: conversation!,
+              receiverUser: receiverUser!,
+              senderUser: widget.args.senderUser!,
             ),
           ),
         ),
-      ];
+      );
+    } else {
+      SnackbarUtils.showSnackbar(
+        context: context,
+        title: message!,
+      );
+
+      if (closeScreen) {
+        Navigator.pop(context);
+      }
     }
-
-    return options;
   }
 
   @override
@@ -212,10 +113,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 }
               }
 
-              if (state is EventDeleteSuccess) {
+              if (state is EventChangeStatusSuccess) {
                 _popLoader(
                   context,
-                  message: 'Event deleted successfully!',
+                  message: state.message,
                   closeScreen: true,
                 );
               }
@@ -241,48 +142,46 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   .getEventDataStream(widget.args.event.eventId!)
               : null,
           builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              var eventData = snapshot.data!.data();
-              if (eventData != null) {
-                EventDto _event =
-                    EventDto.fromJson(eventData as Map<String, dynamic>);
+            if (snapshot.hasData) {
+              EventDto _event = EventDto.fromJson(
+                snapshot.data!.data() as Map<String, dynamic>,
+              );
 
-                return Stack(
-                  children: [
-                    _buildEventHeader(context, _event),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Material(
-                        elevation: 20.0,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(24.0),
-                          topRight: Radius.circular(24.0),
+              return Stack(
+                children: [
+                  _buildEventHeader(context, _event),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Material(
+                      elevation: 20.0,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(24.0),
+                        topRight: Radius.circular(24.0),
+                      ),
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * 0.60,
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          color: AppStyle.kColorWhite,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(24.0),
+                            topRight: Radius.circular(24.0),
+                          ),
                         ),
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * 0.60,
-                          width: double.infinity,
-                          decoration: const BoxDecoration(
-                            color: AppStyle.kColorWhite,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(24.0),
-                              topRight: Radius.circular(24.0),
-                            ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            top: 56.0,
+                            left: 27.0,
+                            right: 27.0,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              top: 56.0,
-                              left: 27.0,
-                              right: 27.0,
-                            ),
-                            child: _buildProfileData(context, _event),
-                          ),
+                          child: _buildProfileData(context, _event),
                         ),
                       ),
                     ),
-                    _buildFloatingButtons(context, _event),
-                  ],
-                );
-              }
+                  ),
+                  _buildFloatingButtons(context, _event),
+                ],
+              );
             }
 
             return const CustomProgressIndicator();
@@ -309,12 +208,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Widget _buildProfileData(BuildContext context, EventDto event) {
-    return SingleChildScrollView(
+    Widget widget = const SizedBox.shrink();
+
+    widget = SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            event.eventTitle ?? 'No Title',
+            event.eventTitle!,
             style: AppStyle.kStyleBold.copyWith(
               fontSize: 24.0,
             ),
@@ -323,39 +224,54 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           FutureBuilder<UserDto>(
             future: context.read<ProfileCubit>().getUserData(event.postedBy!),
             builder: (context, snapshot) {
-              String data = '...';
-
-              if (snapshot.hasData) {
-                data = snapshot.data!.organizationName ?? 'No Organization';
+              if (snapshot.hasData && !snapshot.hasError) {
+                return CustomProfileText(
+                  label: 'Posted By',
+                  data: snapshot.data!.organizationName!,
+                  dataTextColor: AppStyle.kColorBlack,
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRouter.viewProfileScreen,
+                      arguments: ViewProfileScreenArgs(
+                        user: snapshot.data!,
+                        showEditIcon: false,
+                      ),
+                    );
+                  },
+                );
               }
 
-              return CustomProfileText(
-                label: 'Posted By',
-                data: data,
-              );
+              return const CustomProfileText(label: 'Posted By', data: '...');
             },
           ),
           CustomProfileText(
             label: 'Date Posted',
-            data: StringUtils.getFormattedDate(
-                dateTime: event.createdAt ?? DateTime.now()),
+            data: StringUtils.getFormattedDate(dateTime: event.createdAt!),
           ),
           CustomProfileText(
-            label: 'Event Date',
+            label: 'Event Start Date & Time',
             data: StringUtils.getFormattedDate(
-                dateTime: event.eventDate ?? DateTime.now()),
+              dateFormat: 'MMMM dd, yyyy - hh:mm a',
+              dateTime: event.eventStartDateTime,
+            ),
           ),
           CustomProfileText(
-            label: 'Event Type',
-            data: getEventType(event.eventType ?? 0),
+            label: 'Event End Date & Time',
+            data: StringUtils.getFormattedDate(
+              dateFormat: 'MMMM dd, yyyy - hh:mm a',
+              dateTime: event.eventEndDateTime,
+            ),
           ),
           CustomProfileText(
             label: 'Event Description',
-            data: event.eventDescription ?? 'No Description',
+            data: event.eventDescription!,
           ),
         ],
       ),
     );
+
+    return widget;
   }
 
   Widget _buildFloatingButtons(BuildContext context, EventDto newEventData) {
@@ -375,10 +291,22 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             CustomFloatingButton(
               icon: Icons.menu,
               onPressed: () {
+                String? senderId;
+
+                if (widget.args.senderUser != null) {
+                  senderId = widget.args.senderUser!.userId;
+                }
+
                 DialogUtils.showGenericBottomSheet(
                   context,
                   header: 'Event Settings',
-                  options: _settingsOptions(context, newEventData),
+                  bottomSheetHeight: 600.h,
+                  options: buildSettings(
+                    context,
+                    event: newEventData,
+                    senderId: senderId,
+                    isOrganization: widget.args.isOrganization,
+                  ),
                 );
               },
             )
@@ -386,44 +314,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         ),
       ),
     );
-  }
-
-  void _popLoader(
-    BuildContext context, {
-    ConversationDto? conversation,
-    UserDto? receiverUser,
-    String? message,
-    bool navigate = false,
-    bool closeScreen = false,
-  }) {
-    SnackbarUtils.removeCurrentSnackbar(context: context);
-
-    CustomLoader.of(context).managePop(true);
-    CustomLoader.of(context).hide();
-
-    if (navigate) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MessagesScreen(
-            args: MessagesScreenArgs(
-              conversation: conversation!,
-              receiverUser: receiverUser!,
-              senderUser: widget.args.senderUser!,
-            ),
-          ),
-        ),
-      );
-    } else {
-      SnackbarUtils.showSnackbar(
-        context: context,
-        title: message!,
-      );
-
-      if (closeScreen) {
-        Navigator.pop(context);
-      }
-    }
   }
 }
 

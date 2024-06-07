@@ -6,6 +6,7 @@ import 'package:donation_management/core/presentation/widgets/custom_progress_in
 import 'package:donation_management/feature/events/data/models/event_dto.dart';
 import 'package:donation_management/feature/events/data/models/joined_event_dto.dart';
 import 'package:donation_management/feature/events/presentation/blocs/event_cubit/event_cubit.dart';
+import 'package:donation_management/feature/events/presentation/screens/donation_approval_screen.dart';
 import 'package:donation_management/feature/events/presentation/widgets/participant_item_tile.dart';
 import 'package:donation_management/feature/profile/data/models/user_dto.dart';
 import 'package:donation_management/feature/profile/presentation/blocs/profile_cubit/profile_cubit.dart';
@@ -15,9 +16,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ViewParticipantsScreen extends StatelessWidget {
   const ViewParticipantsScreen({
-    super.key,
+    Key? key,
     required this.args,
-  });
+  }) : super(key: key);
 
   final ViewParticipantsScreenArgs args;
 
@@ -90,6 +91,18 @@ class ViewParticipantsScreen extends StatelessWidget {
                       arguments: ViewProfileScreenArgs(
                         user: user,
                         showEditIcon: false,
+                      ),
+                    );
+                  },
+                  icon: Icons.inventory,
+                  actionOnPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRouter.donationApprovalScreen,
+                      arguments: DonationApprovalScreenArgs(
+                        user: user,
+                        event: args.event,
+                        joinedEventId: _joinedEvents[index].joinedEventId,
                       ),
                     );
                   },
