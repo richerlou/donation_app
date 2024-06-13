@@ -11,6 +11,7 @@ import 'package:donation_management/generated/fonts.gen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:donation_management/core/data/enums/user_role.dart';
 
 class ProfileSection extends StatefulWidget {
   const ProfileSection({super.key});
@@ -157,21 +158,39 @@ class _ProfileSectionState extends State<ProfileSection> with AccountMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomSettingsTile(
-                title: 'View Profile',
-                suffixIconData: Icons.person,
-                settingsOnTapped: () {
-                  AccountSuccess tmpState = state as AccountSuccess;
-
-                  Navigator.pushNamed(
-                    context,
-                    AppRouter.viewProfileScreen,
-                    arguments: ViewProfileScreenArgs(
-                      user: tmpState.user!,
-                    ),
-                  );
-                },
-              ),
+              if (state is AccountSuccess &&
+                  state.user?.getUserRole != UserRole.admin)
+                CustomSettingsTile(
+                  title: 'View Profile',
+                  suffixIconData: Icons.person,
+                  settingsOnTapped: () {
+                    AccountSuccess tmpState = state;
+                    Navigator.pushNamed(
+                      context,
+                      AppRouter.viewProfileScreen,
+                      arguments: ViewProfileScreenArgs(
+                        user: tmpState.user!,
+                      ),
+                    );
+                  },
+                ),
+              // if (state is AccountSuccess &&
+              //     state.user?.getUserRole != UserRole.admin &&
+              //     state.user?.getUserRole != UserRole.organization)
+              //   CustomSettingsTile(
+              //     title: 'Approved Donations',
+              //     suffixIconData: Icons.check_circle,
+              //     settingsOnTapped: () {
+              //       AccountSuccess tmpState = state;
+              //       Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //           builder: (context) =>
+              //               ApprovedDonationsScreen(user: tmpState.user!),
+              //         ),
+              //       );
+              //     },
+              //   ),
               CustomSettingsTile(
                 title: 'Change password',
                 suffixIconData: Icons.lock,

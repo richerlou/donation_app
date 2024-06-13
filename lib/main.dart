@@ -29,6 +29,14 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.green,
             visualDensity: VisualDensity.adaptivePlatformDensity,
+            appBarTheme: const AppBarTheme(backgroundColor: Colors.green),
+            tabBarTheme: const TabBarTheme(
+              indicatorColor: Colors.white,
+              labelColor:
+                  Colors.white, // Change the color of the selected tab label
+              unselectedLabelColor: Color.fromARGB(255, 207, 200,
+                  200), // Change the color of the unselected tab label
+            ),
           ),
         ),
       ),

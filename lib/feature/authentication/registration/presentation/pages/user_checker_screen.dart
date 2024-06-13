@@ -19,7 +19,7 @@ class UserCheckerScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CustomButton(
-              buttonTitle: 'Individual',
+              buttonTitle: 'Donor',
               onPressed: () {
                 Navigator.pushNamed(
                   context,

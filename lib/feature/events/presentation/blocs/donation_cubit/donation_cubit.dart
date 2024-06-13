@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:donation_management/core/data/services/custom_emailjs.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:donation_management/core/data/mixins/local_user_mixin.dart';
@@ -71,6 +71,14 @@ class DonationCubit extends Cubit<DonationState> with LocalUserMixin {
         updatedAt: DateTime.now(),
       );
 
+      bool donationExists = await _donationRepository
+          .checkDonactionAlreadyExist(donation, eventId);
+
+      if (donationExists) {
+        // Throw a specific error if the donation already exists
+        throw DonationAlreadyExistsError();
+      }
+
       await _donationRepository.addDonation(donation, eventId);
 
       emit(const DonationSuccess());
@@ -78,6 +86,10 @@ class DonationCubit extends Cubit<DonationState> with LocalUserMixin {
       if (err is SocketException) {
         emit(const DonationError(
           errorMessage: 'Please check your internet connection.',
+        ));
+      } else if (err is DonationAlreadyExistsError) {
+        emit(const DonationError(
+          errorMessage: 'Donation with the same name already exists.',
         ));
       } else {
         emit(const DonationError(
@@ -146,6 +158,17 @@ class DonationCubit extends Cubit<DonationState> with LocalUserMixin {
         notificationTitleText = 'Your donations are approved.';
         notificationBodyText =
             'Your donation ${currentDonation.donationName} with the quantity of ${donationOffer.quantity} to ${event.eventTitle} on $eventStartDateTime to $eventEndDateTime are approved.';
+        // Send email notification
+        await CustomEmailJS.send(
+          serviceID: 'service_fw7sh7g', // replace with your EmailJS service ID
+          templateID:
+              'template_1q6w5vt', // replace with your EmailJS template ID
+          templateParams: {
+            'to': donor.emailAddress,
+            'subject': 'Your donation has been approved!',
+            'message': notificationBodyText,
+          },
+        );
       } else {
         message = 'Donation declined!';
         notificationTitleText = 'Your donations are declined.';

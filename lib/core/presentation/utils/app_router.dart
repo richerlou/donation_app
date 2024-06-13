@@ -29,7 +29,7 @@ class AppRouter {
   static const String addEditDonationScreen = '/addEditDonationScreen';
   static const String donationApprovalScreen = '/donationApprovalScreen';
   static const String giveDonationScreen = '/giveDonationScreen';
-
+  // static const String approvedDonationsScreen = '/approvedDonationsScreen';
   static Route<dynamic> generateRoute(RouteSettings settings) {
     Object? arguments = settings.arguments;
 

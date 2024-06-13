@@ -23,14 +23,3 @@ extension DonationOfferStatusExt on DonationOfferStatus {
     }
   }
 }
-
-String getDonationOfferStatus(num value) {
-  switch (value) {
-    case 1:
-      return 'Pending';
-    case 2:
-      return 'Approved';
-    default:
-      return 'Declined';
-  }
-}

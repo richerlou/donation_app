@@ -1,5 +1,6 @@
 import 'package:donation_management/core/data/services/firebase_service.dart';
 import 'package:donation_management/core/data/services/local_notification_service.dart';
+import 'package:donation_management/core/data/services/custom_emailjs.dart';
 
 class ApplicationService {
   ApplicationService._();
@@ -15,5 +16,11 @@ class ApplicationService {
 
     /// Initialize local notification service
     await LocalNotificationService.initialize();
+    // Initialize EmailJS
+    CustomEmailJS.init(
+      publicKey: 'Im1fVy38_HnYn7wFU',
+      privateKey: 'ypWfUCyRmrK_aw__8qNbr',
+      host: 'api.emailjs.com',
+    );
   }
 }

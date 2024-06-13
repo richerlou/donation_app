@@ -176,23 +176,19 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
   void initState() {
     _eventForm = FormGroup({
       'eventTitle': FormControl<String>(validators: [Validators.required]),
-      'eventDescription': FormControl<String>(validators: [
-        Validators.required,
-      ]),
+      'eventDescription':
+          FormControl<String>(validators: [Validators.required]),
       'eventStartDate': FormControl<DateTime>(validators: [
         Validators.required,
-        EventValidator.priorEventDate,
+        PriorEventDateValidator(),
       ]),
-      'eventStartTime': FormControl<TimeOfDay>(validators: [
-        Validators.required,
-      ]),
+      'eventStartTime':
+          FormControl<TimeOfDay>(validators: [Validators.required]),
       'eventEndDate': FormControl<DateTime>(validators: [
         Validators.required,
-        EventValidator.priorEventDate,
+        PriorEventDateValidator(),
       ]),
-      'eventEndTime': FormControl<TimeOfDay>(validators: [
-        Validators.required,
-      ]),
+      'eventEndTime': FormControl<TimeOfDay>(validators: [Validators.required]),
     });
 
     _imagePickerService = ImagePickerService();

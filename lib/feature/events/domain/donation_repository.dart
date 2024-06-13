@@ -47,6 +47,8 @@ abstract class DonationRepository {
 
   /// Add donation offer
   Future<void> addDonationOffer(DonationOfferDto donationOfferDto);
+
+  Future<bool> checkDonactionAlreadyExist(DonationDto donation, String eventId);
 }
 
 class DonationRepositoryImpl implements DonationRepository {
@@ -96,6 +98,30 @@ class DonationRepositoryImpl implements DonationRepository {
     return (query.data() != null)
         ? DonationDto.fromJson(query.data() as Map<String, dynamic>)
         : null;
+  }
+
+  @override
+  Future<bool> checkDonactionAlreadyExist(
+      DonationDto donation, String eventId) async {
+    CollectionReference donationsRef =
+        _firebaseService.eventsRef.doc(eventId).collection('donations');
+
+    // Convert the donation name to lowercase for case-insensitive comparison
+    String lowercasedDonationName = donation.donationName!.toLowerCase();
+
+    QuerySnapshot querySnapshot = await donationsRef.get();
+
+    // Check if any existing donation name matches the lowercase version of the new donation name
+    bool donationExists = querySnapshot.docs.any((doc) {
+      // Explicitly cast doc.data() to Map<String, dynamic>
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      // Access the 'donationName' property using []
+      String existingDonationName =
+          (data['donationName'] as String).toLowerCase();
+      return existingDonationName == lowercasedDonationName;
+    });
+
+    return donationExists;
   }
 
   @override

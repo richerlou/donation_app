@@ -106,5 +106,8 @@ class GlobalProvider {
     BlocProvider<DonationCubit>(
       create: (context) => DonationCubit(donationRepository, userRepository),
     ),
+        BlocProvider<OrganizationCubit>(
+      create: (context) => OrganizationCubit(userRepository),
+    ),
   ];
 }

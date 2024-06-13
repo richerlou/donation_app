@@ -1,6 +1,7 @@
 import 'package:donation_management/core/data/converters/timestamp_converter.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 part 'donation_offer_dto.g.dart';
 
 @JsonSerializable()

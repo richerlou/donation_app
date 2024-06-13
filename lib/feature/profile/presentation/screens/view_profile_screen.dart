@@ -17,9 +17,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ViewProfileScreen extends StatelessWidget with ProfileMixin {
   const ViewProfileScreen({
-    Key? key,
+    super.key,
     required this.args,
-  }) : super(key: key);
+  });
 
   final ViewProfileScreenArgs args;
 

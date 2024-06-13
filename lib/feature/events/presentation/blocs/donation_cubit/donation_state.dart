@@ -34,3 +34,17 @@ class DonationError extends DonationState {
   @override
   List<Object> get props => [errorMessage!];
 }
+
+class DonationAlreadyExistsError implements Exception {
+  final String message;
+
+  DonationAlreadyExistsError([this.message = '']);
+
+  @override
+  String toString() {
+    if (message.isNotEmpty) {
+      return 'DonationAlreadyExistsError: $message';
+    }
+    return 'DonationAlreadyExistsError';
+  }
+}
